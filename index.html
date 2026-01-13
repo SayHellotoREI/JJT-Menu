@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘 뭐 먹지? 🍽️</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>오늘 뭐 먹지? 🍽️</h1>
+            <p class="subtitle">과천 점심 메뉴 추천기</p>
+        </header>
+
+        <main>
+            <div id="result-card" class="result-card hidden">
+                <div class="restaurant-name" id="restaurant-name"></div>
+                <div class="restaurant-category" id="restaurant-category"></div>
+                <div class="restaurant-distance" id="restaurant-distance"></div>
+                <a id="restaurant-link" href="#" target="_blank" class="map-link">
+                    📍 카카오맵에서 보기
+                </a>
+            </div>
+
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>맛집 찾는 중...</p>
+            </div>
+
+            <div id="error" class="error hidden">
+                <p id="error-message"></p>
+            </div>
+
+            <button id="pick-btn" class="pick-button">
+                🎲 오늘의 점심 뽑기
+            </button>
+
+            <button id="retry-btn" class="retry-button hidden">
+                🔄 다시 뽑기
+            </button>
+        </main>
+
+        <footer>
+            <p>반경 500m 내 음식점 중 랜덤 추천</p>
+        </footer>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
