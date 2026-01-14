@@ -70,23 +70,39 @@ export default async function handler(req, res) {
     }
 
     try {
-        // 카카오 로컬 API 호출 (size=15가 최대)
-        const kakaoUrl = `https://dapi.kakao.com/v2/local/search/category.json?category_group_code=FD6&x=${lng}&y=${lat}&radius=${rad}&sort=distance&size=15`;
+        // 모든 페이지의 결과를 가져오기 (최대 3페이지 = 45개)
+        let allDocuments = [];
+        let page = 1;
+        let isEnd = false;
 
-        const response = await fetch(kakaoUrl, {
-            headers: {
-                'Authorization': `KakaoAK ${apiKey}`
+        while (!isEnd && page <= 3) {
+            const kakaoUrl = `https://dapi.kakao.com/v2/local/search/category.json?category_group_code=FD6&x=${lng}&y=${lat}&radius=${rad}&sort=distance&size=15&page=${page}`;
+
+            const response = await fetch(kakaoUrl, {
+                headers: {
+                    'Authorization': `KakaoAK ${apiKey}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Kakao API error: ${response.status}`);
             }
-        });
 
-        if (!response.ok) {
-            throw new Error(`Kakao API error: ${response.status}`);
+            const data = await response.json();
+            allDocuments = allDocuments.concat(data.documents);
+            isEnd = data.meta.is_end;
+            page++;
         }
 
-        const data = await response.json();
-
-        // 성공 응답
-        return res.status(200).json(data);
+        // 성공 응답 (모든 페이지 결과 합침)
+        return res.status(200).json({
+            documents: allDocuments,
+            meta: {
+                total_count: allDocuments.length,
+                pageable_count: allDocuments.length,
+                is_end: true
+            }
+        });
 
     } catch (error) {
         console.error('Kakao API 호출 실패:', error);
