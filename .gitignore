@@ -1,5 +1,5 @@
 # 민감한 설정 파일
-config.js
+# config.js는 템플릿으로 커밋됨 (실제 API 키는 로컬에서만 수정)
 .env
 .env.local
 .env.production
