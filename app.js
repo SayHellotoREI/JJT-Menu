@@ -15,8 +15,17 @@ const restaurantLink = document.getElementById('restaurant-link');
 let restaurantCache = [];
 let lastPicked = null;
 
-// 초기화
+// Kakao SDK 초기화
 document.addEventListener('DOMContentLoaded', () => {
+    // Kakao SDK 초기화
+    if (typeof Kakao !== 'undefined') {
+        Kakao.init(CONFIG.KAKAO_API_KEY);
+        console.log('Kakao SDK 초기화:', Kakao.isInitialized());
+    } else {
+        console.error('Kakao SDK 로드 실패');
+        showError('카카오 SDK를 불러오지 못했어요.');
+    }
+
     pickBtn.addEventListener('click', pickRestaurant);
     retryBtn.addEventListener('click', pickRestaurant);
 });
@@ -60,29 +69,32 @@ async function pickRestaurant() {
     }
 }
 
-// 카카오 API로 음식점 검색
-async function fetchRestaurants() {
-    const { latitude, longitude } = CONFIG.LOCATION;
-    const radius = CONFIG.RADIUS;
-    const category = CONFIG.CATEGORY;
+// 카카오 SDK로 음식점 검색
+function fetchRestaurants() {
+    return new Promise((resolve, reject) => {
+        const { latitude, longitude } = CONFIG.LOCATION;
+        const radius = CONFIG.RADIUS;
 
-    // 카카오 로컬 API - 카테고리 검색
-    const url = `https://dapi.kakao.com/v2/local/search/category.json?category_group_code=${category}&x=${longitude}&y=${latitude}&radius=${radius}&sort=distance`;
-
-    const response = await fetch(url, {
-        headers: {
-            'Authorization': `KakaoAK ${CONFIG.KAKAO_API_KEY}`
-        }
+        Kakao.API.request({
+            url: '/v2/local/search/category.json',
+            data: {
+                category_group_code: 'FD6',
+                x: longitude,
+                y: latitude,
+                radius: radius,
+                sort: 'distance'
+            },
+            success: function(response) {
+                restaurantCache = response.documents || [];
+                console.log(`${restaurantCache.length}개 음식점 발견`);
+                resolve();
+            },
+            fail: function(error) {
+                console.error('API 오류:', error);
+                reject(error);
+            }
+        });
     });
-
-    if (!response.ok) {
-        throw new Error(`API 오류: ${response.status}`);
-    }
-
-    const data = await response.json();
-    restaurantCache = data.documents || [];
-
-    console.log(`${restaurantCache.length}개 음식점 발견`);
 }
 
 // 결과 표시
