@@ -15,10 +15,40 @@ const restaurantLink = document.getElementById('restaurant-link');
 let restaurantCache = [];
 let lastPicked = null;
 
+// CONFIG 검증
+function validateConfig() {
+    if (typeof CONFIG === 'undefined') {
+        throw new Error('CONFIG가 정의되지 않았습니다. config.js 파일을 확인하세요.');
+    }
+
+    if (!CONFIG.KAKAO_API_KEY || CONFIG.KAKAO_API_KEY === 'YOUR_KAKAO_REST_API_KEY_HERE') {
+        throw new Error('Kakao API 키가 설정되지 않았습니다. config.js 파일을 확인하세요.');
+    }
+
+    const { latitude, longitude } = CONFIG.LOCATION;
+    if (typeof latitude !== 'number' || latitude < -90 || latitude > 90) {
+        throw new Error('잘못된 위도 값입니다.');
+    }
+
+    if (typeof longitude !== 'number' || longitude < -180 || longitude > 180) {
+        throw new Error('잘못된 경도 값입니다.');
+    }
+
+    if (typeof CONFIG.RADIUS !== 'number' || CONFIG.RADIUS < 0 || CONFIG.RADIUS > 20000) {
+        throw new Error('잘못된 반경 값입니다. (0-20000m)');
+    }
+}
+
 // 이벤트 리스너 등록
 document.addEventListener('DOMContentLoaded', () => {
-    pickBtn.addEventListener('click', pickRestaurant);
-    retryBtn.addEventListener('click', pickRestaurant);
+    try {
+        validateConfig();
+        pickBtn.addEventListener('click', pickRestaurant);
+        retryBtn.addEventListener('click', pickRestaurant);
+    } catch (err) {
+        showError(`설정 오류: ${err.message}`);
+        pickBtn.disabled = true;
+    }
 });
 
 // 메인 함수: 음식점 뽑기
