@@ -4,8 +4,5 @@
       "memory": 1024,
       "maxDuration": 10
     }
-  },
-  "env": {
-    "KAKAO_API_KEY": "@kakao-api-key"
   }
 }
