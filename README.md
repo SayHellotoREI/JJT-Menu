@@ -9,8 +9,7 @@ JJT-Menu/
 ├── index.html         # 메인 페이지
 ├── style.css          # 스타일
 ├── app.js             # 로직
-├── config.example.js  # 설정 템플릿
-├── config.js          # 실제 설정 (Git에 포함 안됨)
+├── config.js          # 설정 파일 (템플릿, 로컬에서 API 키 수정)
 ├── .gitignore         # Git 무시 파일 목록
 └── README.md          # 이 파일
 ```
@@ -24,12 +23,7 @@ JJT-Menu/
 3. 앱 이름 입력 후 생성
 4. **앱 설정 > 앱 키** 메뉴에서 **REST API 키** 복사
 
-### 2️⃣ 설정 파일 생성
-
-```bash
-# config.example.js를 config.js로 복사
-cp config.example.js config.js
-```
+### 2️⃣ API 키 설정
 
 `config.js` 파일을 열고 발급받은 REST API 키를 입력:
 
@@ -67,14 +61,17 @@ const CONFIG = {
 
 ### 방법 1: GitHub Pages (추천)
 
-1. GitHub에 새 저장소 생성
-2. **config.js는 제외하고** 나머지 파일 업로드
+1. GitHub 저장소를 Fork 또는 Clone
+2. **로컬에서만** `config.js`에 실제 API 키 입력 (커밋하지 마세요!)
 3. GitHub Pages 설정:
    - Settings > Pages > Source: `main` 브랜치
-4. 배포된 URL을 Kakao Developers 도메인에 추가
-5. 배포 환경에서 브라우저 콘솔로 config.js 내용 붙여넣기 (임시)
+4. 배포된 사이트에서는 "API 키가 설정되지 않았습니다" 에러 발생 (정상)
+5. **해결책**: 사용자가 각자 Fork한 저장소에서 config.js를 직접 수정 후 배포
 
-⚠️ **주의**: GitHub Pages는 정적 파일만 호스팅하므로, config.js를 Git에 포함하면 API 키가 공개됩니다!
+⚠️ **주의**:
+- Git 저장소의 config.js는 플레이스홀더 버전만 포함
+- 실제 API 키는 로컬에서만 사용하거나, 각자 Fork한 저장소에 수정
+- config.js를 실제 키로 커밋하면 공개됩니다!
 
 ### 방법 2: Vercel
 
