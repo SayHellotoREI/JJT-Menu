@@ -21,7 +21,10 @@ function validateConfig() {
         throw new Error('CONFIG가 정의되지 않았습니다. config.js 파일을 확인하세요.');
     }
 
-    if (!CONFIG.KAKAO_API_KEY || CONFIG.KAKAO_API_KEY === 'YOUR_KAKAO_REST_API_KEY_HERE') {
+    // Serverless 환경에서는 API 키 검증 생략
+    const useServerless = !CONFIG.KAKAO_API_KEY || CONFIG.KAKAO_API_KEY === 'YOUR_KAKAO_REST_API_KEY_HERE';
+
+    if (!useServerless && !CONFIG.KAKAO_API_KEY) {
         throw new Error('Kakao API 키가 설정되지 않았습니다. config.js 파일을 확인하세요.');
     }
 
@@ -95,14 +98,27 @@ async function fetchRestaurants() {
     const { latitude, longitude } = CONFIG.LOCATION;
     const radius = CONFIG.RADIUS;
 
-    const url = `https://dapi.kakao.com/v2/local/search/category.json?category_group_code=FD6&x=${longitude}&y=${latitude}&radius=${radius}&sort=distance`;
+    // Serverless API 사용 여부 감지
+    const useServerless = !CONFIG.KAKAO_API_KEY || CONFIG.KAKAO_API_KEY === 'YOUR_KAKAO_REST_API_KEY_HERE';
 
-    try {
-        const response = await fetch(url, {
+    let url, options;
+
+    if (useServerless) {
+        // Vercel Serverless Function 사용 (프로덕션)
+        url = `/api/restaurants?latitude=${latitude}&longitude=${longitude}&radius=${radius}`;
+        options = {}; // Authorization 헤더 불필요 (서버에서 처리)
+    } else {
+        // 직접 Kakao API 호출 (로컬 개발)
+        url = `https://dapi.kakao.com/v2/local/search/category.json?category_group_code=FD6&x=${longitude}&y=${latitude}&radius=${radius}&sort=distance`;
+        options = {
             headers: {
                 'Authorization': `KakaoAK ${CONFIG.KAKAO_API_KEY}`
             }
-        });
+        };
+    }
+
+    try {
+        const response = await fetch(url, options);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -110,7 +126,7 @@ async function fetchRestaurants() {
 
         const data = await response.json();
         restaurantCache = data.documents || [];
-        console.log(`${restaurantCache.length}개 음식점 발견`);
+        console.log(`${restaurantCache.length}개 음식점 발견 (${useServerless ? 'Serverless' : 'Direct'} API)`);
     } catch (error) {
         console.error('API 오류:', error);
         throw error;

@@ -6,10 +6,14 @@
 
 ```
 JJT-Menu/
+├── api/
+│   └── restaurants.js # Vercel Serverless Function (API 프록시)
 ├── index.html         # 메인 페이지
 ├── style.css          # 스타일
-├── app.js             # 로직
-├── config.js          # 설정 파일 (템플릿, 로컬에서 API 키 수정)
+├── app.js             # 로직 (자동으로 Serverless/Direct API 선택)
+├── config.js          # 설정 파일 (템플릿, 로컬 개발용)
+├── vercel.json        # Vercel 배포 설정
+├── .env.example       # 환경변수 예시
 ├── .gitignore         # Git 무시 파일 목록
 └── README.md          # 이 파일
 ```
@@ -59,25 +63,47 @@ const CONFIG = {
 
 ## 🌐 배포 방법
 
-### 방법 1: GitHub Pages (추천)
+### 방법 1: Vercel (추천 ⭐ - API 키 완전히 숨김!)
 
-1. GitHub 저장소를 Fork 또는 Clone
-2. **로컬에서만** `config.js`에 실제 API 키 입력 (커밋하지 마세요!)
-3. GitHub Pages 설정:
-   - Settings > Pages > Source: `main` 브랜치
-4. 배포된 사이트에서는 "API 키가 설정되지 않았습니다" 에러 발생 (정상)
-5. **해결책**: 사용자가 각자 Fork한 저장소에서 config.js를 직접 수정 후 배포
+**장점**: API 키가 완전히 안전하게 서버 환경변수로 관리됨
 
-⚠️ **주의**:
-- Git 저장소의 config.js는 플레이스홀더 버전만 포함
-- 실제 API 키는 로컬에서만 사용하거나, 각자 Fork한 저장소에 수정
-- config.js를 실제 키로 커밋하면 공개됩니다!
+#### 1️⃣ Vercel 계정 생성
+1. [Vercel](https://vercel.com) 접속
+2. GitHub 계정으로 로그인
 
-### 방법 2: Vercel
+#### 2️⃣ 프로젝트 배포
+1. **New Project** 클릭
+2. GitHub 저장소 Import
+3. **Deploy** 클릭 (일단 배포)
 
-1. [Vercel](https://vercel.com) 가입
-2. GitHub 연동 또는 파일 직접 업로드
-3. 자동 배포 완료
+#### 3️⃣ 환경변수 설정 (중요!)
+1. Vercel 대시보드에서 프로젝트 선택
+2. **Settings** → **Environment Variables**
+3. 환경변수 추가:
+   ```
+   Name: KAKAO_API_KEY
+   Value: (발급받은 REST API 키)
+   ```
+4. **Save** 클릭
+
+#### 4️⃣ 재배포
+1. **Deployments** 탭으로 이동
+2. 최신 배포 옆 **...** → **Redeploy** 클릭
+
+✅ **완료!** 이제 API 키가 서버에만 있고, 브라우저에 노출되지 않습니다!
+
+---
+
+### 방법 2: GitHub Pages (로컬 개발용)
+
+⚠️ **주의**: GitHub Pages는 정적 호스팅만 지원하므로 API 키가 노출됩니다.
+
+1. GitHub 저장소를 Fork
+2. `config.js`에 실제 API 키 입력 후 커밋 (본인 저장소에만)
+3. Settings > Pages > Source: `main` 브랜치
+4. 배포 완료
+
+**단점**: API 키가 코드에 노출되므로 개인 프로젝트에만 사용 권장
 
 ### 방법 3: Netlify
 
@@ -130,14 +156,24 @@ const CONFIG = {
 
 ### 🔒 보안 강화 방법
 
-**현재 프로젝트 (프론트엔드만):**
-- ✅ 도메인 제한 설정 (Kakao Developers)
-- ⚠️ API 키는 여전히 브라우저에 노출됨 (개발자 도구로 확인 가능)
+**✅ Vercel 배포 시 (완벽한 보안):**
+- API 키가 서버 환경변수로 관리됨
+- 브라우저에 API 키 절대 노출 안됨
+- `/api/restaurants` 엔드포인트가 프록시 역할
+- 개발자 도구로 확인해도 API 키 없음
 
-**프로덕션 레벨 보안 (백엔드 필요):**
-- 백엔드 프록시 서버 구축
-- Serverless Functions (Vercel/Netlify) 사용
-- API 키를 서버 환경변수로 관리
+**⚠️ 로컬 개발 또는 GitHub Pages:**
+- API 키가 `config.js`에 노출됨
+- 도메인 제한 설정 (Kakao Developers)
+- 개인 프로젝트에만 권장
+
+**배포 방식별 보안 수준:**
+| 배포 방식 | 보안 수준 | API 키 노출 |
+|----------|----------|-----------|
+| Vercel | ⭐⭐⭐⭐⭐ | ❌ 노출 안됨 |
+| Netlify Functions | ⭐⭐⭐⭐⭐ | ❌ 노출 안됨 |
+| GitHub Pages | ⭐⭐ | ✅ 코드에 노출 |
+| 로컬 개발 | ⭐⭐⭐ | ✅ 로컬에만 |
 
 ## 📝 향후 추가 기능 아이디어
 
