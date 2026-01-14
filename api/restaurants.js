@@ -70,8 +70,8 @@ export default async function handler(req, res) {
     }
 
     try {
-        // 카카오 로컬 API 호출
-        const kakaoUrl = `https://dapi.kakao.com/v2/local/search/category.json?category_group_code=FD6&x=${lng}&y=${lat}&radius=${rad}&sort=distance`;
+        // 카카오 로컬 API 호출 (size=45로 더 많은 결과 가져오기)
+        const kakaoUrl = `https://dapi.kakao.com/v2/local/search/category.json?category_group_code=FD6&x=${lng}&y=${lat}&radius=${rad}&sort=distance&size=45`;
 
         const response = await fetch(kakaoUrl, {
             headers: {
